@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+typedef struct {
+    int pedidos[MAX];
+    int inicio;
+    int fim;
+} Fila;
+
+void inicializaFila(Fila *f) {
+    f->inicio = 0;
+    f->fim = 0;
+}
+
+int filaCheia(Fila *f) {
+    return f->fim == MAX;
+}
+
+int filaVazia(Fila *f) {
+    return f->inicio == f->fim;
+}
+
+void adicionarPedido(Fila *f, int pedido) {
+    if (!filaCheia(f)) {
+        f->pedidos[f->fim] = pedido;
+        f->fim++;
+        printf("Pedido %d adicionado.\n", pedido);
+    } else {
+        printf("A fila de pedidos está cheia!\n");
+    }
+}
+
+void removerPedido(Fila *f) {
+    if (!filaVazia(f)) {
+        printf("Pedido %d atendido e removido.\n", f->pedidos[f->inicio]);
+        f->inicio++;
+    } else {
+        printf("Nenhum pedido na fila para ser atendido.\n");
+    }
+}
+
+void exibirPedidos(Fila *f) {
+    if (!filaVazia(f)) {
+        printf("Pedidos na fila:\n");
+        for (int i = f->inicio; i < f->fim; i++) {
+            printf("%d ", f->pedidos[i]);
+        }
+        printf("\n");
+    } else {
+        printf("Nenhum pedido na fila.\n");
+    }
+}
+
+int main() {
+    Fila fila;
+    int opcao, pedido;
+
+    inicializaFila(&fila);
+
+    do {
+        printf("\nSistema de Gerenciamento de Pedidos\n");
+        printf("1. Adicionar pedido\n");
+        printf("2. Remover pedido (atendido)\n");
+        printf("3. Exibir pedidos\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o numero do pedido: ");
+                scanf("%d", &pedido);
+                adicionarPedido(&fila, pedido);
+                break;
+            case 2:
+                removerPedido(&fila);
+                break;
+            case 3:
+                exibirPedidos(&fila);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
