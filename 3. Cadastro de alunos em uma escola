@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Aluno {
+    int matricula;
+    struct Aluno *prox;
+} Aluno;
+
+Aluno* criarAluno(int matricula) {
+    Aluno *novo = (Aluno*)malloc(sizeof(Aluno));
+    novo->matricula = matricula;
+    novo->prox = NULL;
+    return novo;
+}
+
+void inserirAluno(Aluno **lista, int matricula) {
+    Aluno *novo = criarAluno(matricula);
+    novo->prox = *lista;
+    *lista = novo;
+    printf("Aluno com matricula %d inserido.\n", matricula);
+}
+
+void exibirAlunos(Aluno *lista) {
+    if (lista == NULL) {
+        printf("Nenhum aluno cadastrado.\n");
+        return;
+    }
+
+    Aluno *atual = lista;
+    printf("Alunos cadastrados:\n");
+    while (atual != NULL) {
+        printf("Matricula: %d\n", atual->matricula);
+        atual = atual->prox;
+    }
+}
+
+void buscarAluno(Aluno *lista, int matricula) {
+    Aluno *atual = lista;
+    while (atual != NULL) {
+        if (atual->matricula == matricula) {
+            printf("Aluno com matricula %d encontrado.\n", matricula);
+            return;
+        }
+        atual = atual->prox;
+    }
+    printf("Aluno com matricula %d nao encontrado.\n", matricula);
+}
+
+int main() {
+    Aluno *lista = NULL;
+    int opcao, matricula;
+
+    do {
+        printf("\nCadastro de Alunos\n");
+        printf("1. Inserir aluno\n");
+        printf("2. Exibir alunos\n");
+        printf("3. Buscar aluno\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o numero de matricula do aluno: ");
+                scanf("%d", &matricula);
+                inserirAluno(&lista, matricula);
+                break;
+            case 2:
+                exibirAlunos(lista);
+                break;
+            case 3:
+                printf("Digite o numero de matricula do aluno que deseja buscar: ");
+                scanf("%d", &matricula);
+                buscarAluno(lista, matricula);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
