@@ -1,0 +1,114 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Compromisso {
+    int horario;
+    struct Compromisso *prox;
+} Compromisso;
+
+Compromisso* criarCompromisso(int horario) {
+    Compromisso *novo = (Compromisso*)malloc(sizeof(Compromisso));
+    novo->horario = horario;
+    novo->prox = NULL;
+    return novo;
+}
+
+void inserirCompromisso(Compromisso **agenda, int horario) {
+    Compromisso *novo = criarCompromisso(horario);
+    
+    if (*agenda == NULL || (*agenda)->horario > horario) {
+        novo->prox = *agenda;
+        *agenda = novo;
+    } else {
+        Compromisso *atual = *agenda;
+        while (atual->prox != NULL && atual->prox->horario < horario) {
+            atual = atual->prox;
+        }
+        novo->prox = atual->prox;
+        atual->prox = novo;
+    }
+    
+    printf("Compromisso %d inserido.\n", horario);
+}
+
+void removerCompromisso(Compromisso **agenda, int horario) {
+    if (*agenda == NULL) {
+        printf("Agenda vazia. Nenhum compromisso a remover.\n");
+        return;
+    }
+
+    Compromisso *atual = *agenda;
+    Compromisso *anterior = NULL;
+
+    while (atual != NULL && atual->horario != horario) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        printf("Compromisso %d não encontrado.\n", horario);
+        return;
+    }
+
+    if (anterior == NULL) {
+        *agenda = atual->prox;
+    } else {
+        anterior->prox = atual->prox;
+    }
+
+    free(atual);
+    printf("Compromisso %d removido.\n", horario);
+}
+
+void exibirCompromissos(Compromisso *agenda) {
+    if (agenda == NULL) {
+        printf("Nenhum compromisso agendado.\n");
+        return;
+    }
+
+    printf("Compromissos agendados:\n");
+    Compromisso *atual = agenda;
+    while (atual != NULL) {
+        printf("%d ", atual->horario);
+        atual = atual->prox;
+    }
+    printf("\n");
+}
+
+int main() {
+    Compromisso *agenda = NULL;
+    int opcao, horario;
+
+    do {
+        printf("\nAgenda Pessoal\n");
+        printf("1. Inserir compromisso\n");
+        printf("2. Remover compromisso\n");
+        printf("3. Exibir compromissos\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o horario do compromisso (formato HHMM): ");
+                scanf("%d", &horario);
+                inserirCompromisso(&agenda, horario);
+                break;
+            case 2:
+                printf("Digite o horario do compromisso a ser removido (formato HHMM): ");
+                scanf("%d", &horario);
+                removerCompromisso(&agenda, horario);
+                break;
+            case 3:
+                exibirCompromissos(agenda);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
