@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Encomenda {
+    char destinatario[50];
+    float distancia;
+    struct Encomenda *prox;
+} Encomenda;
+
+Encomenda* criarEncomenda(char destinatario[], float distancia) {
+    Encomenda *nova = (Encomenda*)malloc(sizeof(Encomenda));
+    strcpy(nova->destinatario, destinatario);
+    nova->distancia = distancia;
+    nova->prox = NULL;
+    return nova;
+}
+
+void inserirEncomenda(Encomenda **lista, char destinatario[], float distancia) {
+    Encomenda *nova = criarEncomenda(destinatario, distancia);
+    
+    if (*lista == NULL || (*lista)->distancia > distancia) {
+        nova->prox = *lista;
+        *lista = nova;
+    } else {
+        Encomenda *atual = *lista;
+        while (atual->prox != NULL && atual->prox->distancia < distancia) {
+            atual = atual->prox;
+        }
+        nova->prox = atual->prox;
+        atual->prox = nova;
+    }
+    printf("Encomenda para %s a %.2f km adicionada.\n", destinatario, distancia);
+}
+
+void exibirEncomendas(Encomenda *lista) {
+    if (lista == NULL) {
+        printf("Nenhuma encomenda registrada.\n");
+        return;
+    }
+
+    Encomenda *atual = lista;
+    printf("Encomendas na ordem de entrega:\n");
+    while (atual != NULL) {
+        printf("Destinatário: %s, Distância: %.2f km\n", atual->destinatario, atual->distancia);
+        atual = atual->prox;
+    }
+}
+
+void removerEncomenda(Encomenda **lista) {
+    if (*lista == NULL) {
+        printf("Nenhuma encomenda para remover.\n");
+        return;
+    }
+
+    Encomenda *removida = *lista;
+    *lista = removida->prox;
+    printf("Encomenda para %s a %.2f km foi entregue e removida.\n", removida->destinatario, removida->distancia);
+    free(removida);
+}
+
+int main() {
+    Encomenda *lista = NULL;
+    int opcao;
+    char destinatario[50];
+    float distancia;
+
+    do {
+        printf("\nSistema de Entregas de Encomendas\n");
+        printf("1. Inserir nova encomenda\n");
+        printf("2. Exibir encomendas\n");
+        printf("3. Remover encomenda entregue\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o nome do destinatário: ");
+                fgets(destinatario, 50, stdin);
+                destinatario[strcspn(destinatario, "\n")] = '\0';
+                printf("Digite a distância para o destinatário (km): ");
+                scanf("%f", &distancia);
+                inserirEncomenda(&lista, destinatario, distancia);
+                break;
+            case 2:
+                exibirEncomendas(lista);
+                break;
+            case 3:
+                removerEncomenda(&lista);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
