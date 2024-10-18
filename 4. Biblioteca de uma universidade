@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Livro {
+    int codigo;
+    struct Livro *prox;
+} Livro;
+
+Livro* criarLivro(int codigo) {
+    Livro *novo = (Livro*)malloc(sizeof(Livro));
+    novo->codigo = codigo;
+    novo->prox = NULL;
+    return novo;
+}
+
+void adicionarLivro(Livro **acervo, int codigo) {
+    Livro *novo = criarLivro(codigo);
+    novo->prox = *acervo;
+    *acervo = novo;
+    printf("Livro com codigo %d adicionado ao acervo.\n", codigo);
+}
+
+void exibirLivros(Livro *acervo) {
+    if (acervo == NULL) {
+        printf("Nenhum livro no acervo.\n");
+        return;
+    }
+
+    Livro *atual = acervo;
+    printf("Livros disponiveis no acervo:\n");
+    while (atual != NULL) {
+        printf("Codigo do livro: %d\n", atual->codigo);
+        atual = atual->prox;
+    }
+}
+
+void removerLivro(Livro **acervo, int codigo) {
+    if (*acervo == NULL) {
+        printf("Acervo vazio. Nenhum livro a remover.\n");
+        return;
+    }
+
+    Livro *atual = *acervo;
+    Livro *anterior = NULL;
+
+    while (atual != NULL && atual->codigo != codigo) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        printf("Livro com codigo %d nao encontrado no acervo.\n", codigo);
+        return;
+    }
+
+    if (anterior == NULL) {
+        *acervo = atual->prox;
+    } else {
+        anterior->prox = atual->prox;
+    }
+
+    free(atual);
+    printf("Livro com codigo %d removido do acervo.\n", codigo);
+}
+
+int main() {
+    Livro *acervo = NULL;
+    int opcao, codigo;
+
+    do {
+        printf("\nGerenciamento do Acervo da Biblioteca\n");
+        printf("1. Adicionar livro ao acervo\n");
+        printf("2. Exibir todos os livros\n");
+        printf("3. Remover livro danificado\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o codigo do livro: ");
+                scanf("%d", &codigo);
+                adicionarLivro(&acervo, codigo);
+                break;
+            case 2:
+                exibirLivros(acervo);
+                break;
+            case 3:
+                printf("Digite o codigo do livro a ser removido: ");
+                scanf("%d", &codigo);
+                removerLivro(&acervo, codigo);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
