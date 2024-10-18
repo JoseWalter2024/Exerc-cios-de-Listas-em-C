@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Jogador {
+    int pontuacao;
+    struct Jogador *prox;
+} Jogador;
+
+Jogador* criarJogador(int pontuacao) {
+    Jogador *novo = (Jogador*)malloc(sizeof(Jogador));
+    novo->pontuacao = pontuacao;
+    novo->prox = NULL;
+    return novo;
+}
+
+void inserirPontuacao(Jogador **lista, int pontuacao) {
+    Jogador *novo = criarJogador(pontuacao);
+    
+    if (*lista == NULL || (*lista)->pontuacao > pontuacao) {
+        novo->prox = *lista;
+        *lista = novo;
+    } else {
+        Jogador *atual = *lista;
+        while (atual->prox != NULL && atual->prox->pontuacao < pontuacao) {
+            atual = atual->prox;
+        }
+        novo->prox = atual->prox;
+        atual->prox = novo;
+    }
+    printf("Pontuacao %d adicionada.\n", pontuacao);
+}
+
+void exibirPontuacoes(Jogador *lista) {
+    if (lista == NULL) {
+        printf("Nenhuma pontuacao registrada.\n");
+        return;
+    }
+
+    Jogador *atual = lista;
+    printf("Pontuacoes registradas:\n");
+    while (atual != NULL) {
+        printf("%d\n", atual->pontuacao);
+        atual = atual->prox;
+    }
+}
+
+void removerPontuacao(Jogador **lista, int pontuacao) {
+    if (*lista == NULL) {
+        printf("Nenhuma pontuacao para remover.\n");
+        return;
+    }
+
+    Jogador *atual = *lista;
+    Jogador *anterior = NULL;
+
+    while (atual != NULL && atual->pontuacao != pontuacao) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        printf("Pontuacao %d nao encontrada.\n", pontuacao);
+        return;
+    }
+
+    if (anterior == NULL) {
+        *lista = atual->prox;
+    } else {
+        anterior->prox = atual->prox;
+    }
+
+    free(atual);
+    printf("Pontuacao %d removida.\n", pontuacao);
+}
+
+int main() {
+    Jogador *lista = NULL;
+    int opcao;
+    int pontuacao;
+
+    do {
+        printf("\nSistema de Pontuacao do Campeonato\n");
+        printf("1. Inserir nova pontuacao\n");
+        printf("2. Exibir pontuacoes\n");
+        printf("3. Remover pontuacao de jogador desqualificado\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite a pontuacao do jogador: ");
+                scanf("%d", &pontuacao);
+                inserirPontuacao(&lista, pontuacao);
+                break;
+            case 2:
+                exibirPontuacoes(lista);
+                break;
+            case 3:
+                printf("Digite a pontuacao a ser removida: ");
+                scanf("%d", &pontuacao);
+                removerPontuacao(&lista, pontuacao);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
