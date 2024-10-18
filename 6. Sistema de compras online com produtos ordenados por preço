@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Produto {
+    float preco;
+    struct Produto *prox;
+} Produto;
+
+Produto* criarProduto(float preco) {
+    Produto *novo = (Produto*)malloc(sizeof(Produto));
+    novo->preco = preco;
+    novo->prox = NULL;
+    return novo;
+}
+
+void inserirProduto(Produto **lista, float preco) {
+    Produto *novo = criarProduto(preco);
+    
+    if (*lista == NULL || (*lista)->preco > preco) {
+        novo->prox = *lista;
+        *lista = novo;
+    } else {
+        Produto *atual = *lista;
+        while (atual->prox != NULL && atual->prox->preco < preco) {
+            atual = atual->prox;
+        }
+        novo->prox = atual->prox;
+        atual->prox = novo;
+    }
+    printf("Produto com preco %.2f adicionado.\n", preco);
+}
+
+void exibirProdutos(Produto *lista) {
+    if (lista == NULL) {
+        printf("Nenhum produto disponivel.\n");
+        return;
+    }
+
+    Produto *atual = lista;
+    printf("Precos dos produtos disponiveis:\n");
+    while (atual != NULL) {
+        printf("R$ %.2f\n", atual->preco);
+        atual = atual->prox;
+    }
+}
+
+void removerProduto(Produto **lista, float preco) {
+    if (*lista == NULL) {
+        printf("Nenhum produto disponivel para remover.\n");
+        return;
+    }
+
+    Produto *atual = *lista;
+    Produto *anterior = NULL;
+
+    while (atual != NULL && atual->preco != preco) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        printf("Produto com preco R$ %.2f nao encontrado.\n", preco);
+        return;
+    }
+
+    if (anterior == NULL) {
+        *lista = atual->prox;
+    } else {
+        anterior->prox = atual->prox;
+    }
+
+    free(atual);
+    printf("Produto com preco R$ %.2f removido.\n", preco);
+}
+
+int main() {
+    Produto *lista = NULL;
+    int opcao;
+    float preco;
+
+    do {
+        printf("\nSistema de Compras Online\n");
+        printf("1. Inserir novo produto\n");
+        printf("2. Exibir produtos disponiveis\n");
+        printf("3. Remover produto esgotado\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o preco do produto: ");
+                scanf("%f", &preco);
+                inserirProduto(&lista, preco);
+                break;
+            case 2:
+                exibirProdutos(lista);
+                break;
+            case 3:
+                printf("Digite o preco do produto a ser removido: ");
+                scanf("%f", &preco);
+                removerProduto(&lista, preco);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
