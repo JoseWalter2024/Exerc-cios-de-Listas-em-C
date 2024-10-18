@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Visitante {
+    char nome[50];
+    struct Visitante *prox;
+} Visitante;
+
+Visitante* criarVisitante(char nome[]) {
+    Visitante *novo = (Visitante*)malloc(sizeof(Visitante));
+    strcpy(novo->nome, nome);
+    novo->prox = NULL;
+    return novo;
+}
+
+void inserirVisitante(Visitante **fila, char nome[]) {
+    Visitante *novo = criarVisitante(nome);
+    
+    if (*fila == NULL) {
+        *fila = novo;
+    } else {
+        Visitante *atual = *fila;
+        while (atual->prox != NULL) {
+            atual = atual->prox;
+        }
+        atual->prox = novo;
+    }
+    printf("Visitante %s adicionado à fila de espera.\n", nome);
+}
+
+void removerVisitante(Visitante **fila) {
+    if (*fila == NULL) {
+        printf("Nenhum visitante na fila.\n");
+        return;
+    }
+
+    Visitante *atendido = *fila;
+    *fila = atendido->prox;
+    printf("Visitante %s acabou de usar o brinquedo e foi removido da fila.\n", atendido->nome);
+    free(atendido);
+}
+
+void exibirFila(Visitante *fila) {
+    if (fila == NULL) {
+        printf("Nenhum visitante aguardando.\n");
+        return;
+    }
+
+    Visitante *atual = fila;
+    printf("Visitantes aguardando no brinquedo:\n");
+    while (atual != NULL) {
+        printf("%s\n", atual->nome);
+        atual = atual->prox;
+    }
+}
+
+int main() {
+    Visitante *fila = NULL;
+    int opcao;
+    char nome[50];
+
+    do {
+        printf("\nSistema de Fila de Espera do Parque de Diversoes\n");
+        printf("1. Inserir visitante na fila\n");
+        printf("2. Remover visitante (acabou de usar o brinquedo)\n");
+        printf("3. Exibir lista de visitantes\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o nome do visitante: ");
+                fgets(nome, 50, stdin);
+                nome[strcspn(nome, "\n")] = '\0';
+                inserirVisitante(&fila, nome);
+                break;
+            case 2:
+                removerVisitante(&fila);
+                break;
+            case 3:
+                exibirFila(fila);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
