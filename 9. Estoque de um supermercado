@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Produto {
+    char nome[50];
+    int quantidade;
+    struct Produto *prox;
+} Produto;
+
+Produto* criarProduto(char nome[], int quantidade) {
+    Produto *novo = (Produto*)malloc(sizeof(Produto));
+    strcpy(novo->nome, nome);
+    novo->quantidade = quantidade;
+    novo->prox = NULL;
+    return novo;
+}
+
+void adicionarProduto(Produto **estoque, char nome[], int quantidade) {
+    Produto *novo = criarProduto(nome, quantidade);
+    novo->prox = *estoque;
+    *estoque = novo;
+    printf("Produto %s adicionado ao estoque com quantidade %d.\n", nome, quantidade);
+}
+
+void removerProduto(Produto **estoque, char nome[], int quantidade) {
+    if (*estoque == NULL) {
+        printf("Estoque vazio.\n");
+        return;
+    }
+
+    Produto *atual = *estoque;
+    Produto *anterior = NULL;
+
+    while (atual != NULL && strcmp(atual->nome, nome) != 0) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        printf("Produto %s não encontrado no estoque.\n", nome);
+        return;
+    }
+
+    if (atual->quantidade < quantidade) {
+        printf("Quantidade solicitada de %s maior que a disponível.\n", nome);
+        return;
+    }
+
+    atual->quantidade -= quantidade;
+
+    if (atual->quantidade == 0) {
+        if (anterior == NULL) {
+            *estoque = atual->prox;
+        } else {
+            anterior->prox = atual->prox;
+        }
+        free(atual);
+        printf("Produto %s removido do estoque.\n", nome);
+    } else {
+        printf("Quantidade de %s reduzida para %d.\n", nome, atual->quantidade);
+    }
+}
+
+void exibirEstoque(Produto *estoque) {
+    if (estoque == NULL) {
+        printf("Nenhum produto disponível no estoque.\n");
+        return;
+    }
+
+    Produto *atual = estoque;
+    printf("Produtos disponíveis no estoque:\n");
+    while (atual != NULL) {
+        printf("Nome: %s, Quantidade: %d\n", atual->nome, atual->quantidade);
+        atual = atual->prox;
+    }
+}
+
+int main() {
+    Produto *estoque = NULL;
+    int opcao;
+    char nome[50];
+    int quantidade;
+
+    do {
+        printf("\nSistema de Gerenciamento de Estoque do Supermercado\n");
+        printf("1. Adicionar produto ao estoque\n");
+        printf("2. Remover produto do estoque\n");
+        printf("3. Exibir produtos disponíveis no estoque\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1:
+                printf("Digite o nome do produto: ");
+                fgets(nome, 50, stdin);
+                nome[strcspn(nome, "\n")] = '\0';
+                printf("Digite a quantidade: ");
+                scanf("%d", &quantidade);
+                adicionarProduto(&estoque, nome, quantidade);
+                break;
+            case 2:
+                printf("Digite o nome do produto a ser removido: ");
+                fgets(nome, 50, stdin);
+                nome[strcspn(nome, "\n")] = '\0';
+                printf("Digite a quantidade a ser removida: ");
+                scanf("%d", &quantidade);
+                removerProduto(&estoque, nome, quantidade);
+                break;
+            case 3:
+                exibirEstoque(estoque);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
